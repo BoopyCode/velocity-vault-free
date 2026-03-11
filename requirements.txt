@@ -1,0 +1,46 @@
+# Velocity Vault - 100% FREE AI YouTube Shorts Automation
+# Dependencies for DeepSeek + FLUX + Piper + FFmpeg
+
+# Core Python
+Python>=3.10
+
+# DeepSeek API (Script Generation) - COMPLETELY FREE
+openai>=1.0.0  # Using OpenAI-compatible API for DeepSeek
+requests>=2.31.0
+
+# Replicate (Image Generation via FLUX) - FREE TIER (1000 monthly credits)
+replicate>=0.20.0
+
+# Piper TTS (Voice Synthesis) - 100% FREE & OPEN SOURCE
+piper-tts>=1.2.0
+
+# FFmpeg (Video Composition) - FREE, installed separately
+# Install: sudo apt-get install ffmpeg (or brew install ffmpeg)
+
+# Video & Audio Processing
+opencv-python>=4.8.0
+NumPy>=1.24.0
+Pillow>=10.0.0
+
+# YouTube API - FREE
+google-auth-oauthlib>=1.1.0
+google-auth-httplib2>=0.2.0
+google-api-python-client>=2.100.0
+
+# Utilities
+python-dotenv>=1.0.0  # .env file handling
+click>=8.1.0  # CLI
+pydantic>=2.0.0  # Data validation
+loguru>=0.7.0  # Logging
+
+# Development (Optional)
+pytest>=7.4.0
+black>=23.0.0
+flake8>=6.0.0
+
+# NO PAID SERVICES - Everything is 100% FREE!
+# DeepSeek: https://platform.deepseek.com (Free API)
+# Replicate FLUX: https://replicate.com (1000 free credits/month)
+# Piper: https://github.com/rhasspy/piper (Open source)
+# FFmpeg: https://ffmpeg.org (Open source)
+# YouTube API: https://developers.google.com/youtube (Free tier)
