@@ -58,10 +58,10 @@ The command writes a JSON draft such as:
   "model": "iPhone 13",
   "condition": "good",
   "suggested_price": {
-    "amount": 0,
+    "amount": 450,
     "currency": "EUR",
-    "confidence": "low",
-    "reason": "..."
+    "confidence": "medium",
+    "reason": "Estimated from model, storage, condition, and seller notes."
   },
   "description": "..."
 }

@@ -43,7 +43,7 @@ class MobileMarketplaceAI:
     COMMON_STORAGE_SIZES = (32, 64, 128, 256, 512, 1024)
 
     def __init__(self) -> None:
-        api_key = os.getenv("MARKETPLACE_AI_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
+        api_key = os.getenv("MARKETPLACE_AI_API_KEY")
         base_url = os.getenv("MARKETPLACE_AI_BASE_URL", "https://api.deepseek.com/v1")
 
         self.model = os.getenv("MARKETPLACE_AI_MODEL", "deepseek-chat")
@@ -284,8 +284,17 @@ Return this JSON shape:
 
     @staticmethod
     def _detect_storage(text: str) -> str:
-        sizes = "|".join(str(size) for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES)
-        match = re.search(rf"\b({sizes})\s?gb\b|\b1\s?tb\b", text, re.I)
+        gb_sizes = "|".join(str(size) for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES)
+        tb_sizes = "|".join(
+            str(size // 1024)
+            for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES
+            if size >= 1024 and size % 1024 == 0
+        )
+        pattern = rf"\b({gb_sizes})\s?gb\b"
+        if tb_sizes:
+            pattern = rf"{pattern}|\b({tb_sizes})\s?tb\b"
+
+        match = re.search(pattern, text, re.I)
         return match.group(0).upper().replace(" ", "") if match else ""
 
 
