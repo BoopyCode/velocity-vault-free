@@ -1,179 +1,84 @@
-# velocity-vault-free# 🚀 Velocity Vault - AI YouTube Shorts Automation
+# Mobile Vault - AI marketplace for phones
 
-**100% FREE Stack: DeepSeek + FLUX + Piper + FFmpeg**
+Mobile Vault is a Vinted-style marketplace concept focused on mobile phones.
+The first working feature is an AI listing assistant: upload a phone photo,
+optionally add seller notes, and get a ready-to-publish listing draft.
 
-Automatically generate and upload engaging YouTube Shorts with AI. Target: **100M views in 6 months**.
+## What the AI prepares
 
-## 📊 Project Status
-- ✅ YouTube Channel Created: [Velocity Vault](https://www.youtube.com/channel/UCp3eKZhxDGwruAdId9pxgcg)
-- ✅ GitHub Repository: Ready for deployment
-- 🔄 AI Automation Pipeline: In development
-- 🎬 Video Generation: 3-5 Shorts/day
+- Identifies likely phone brand and model from the image and notes
+- Suggests the marketplace category and subcategory
+- Drafts a Slovak listing title and buyer-friendly description
+- Extracts useful attributes such as storage, color, defects, accessories, and battery notes
+- Suggests a price structure with confidence and rationale
+- Adds search keywords and follow-up seller questions for missing details
 
-## 🛠️ FREE Stack Components
-
-### 1. **Script Generation - DeepSeek API (FREE)**
-```python
-# DeepSeek is completely free (up to reasonable limits)
-pip install openai  # Using OpenAI-compatible API
-```
-- **API Endpoint:** https://api.deepseek.com/v1
-- **Models:** `deepseek-chat` (fast & free)
-- **Use:** Generate compelling Shorts scripts
-
-### 2. **Image/Video Generation - Replicate FLUX (FREE Tier)**
-```bash
-pip install replicate
-```
-- **Model:** `black-forest-labs/flux-schnell`
-- **Cost:** 1000 monthly free credits (enough for 100+ images/month)
-- **Speed:** Ultra-fast generation
-- **Use:** AI-generated visuals for Shorts
-
-### 3. **Voice Synthesis - Piper TTS (100% Open Source)**
-```bash
-pip install piper-tts
-```
-- **No API keys needed**
-- **Runs locally on CPU**
-- **Multiple voices available**
-- **Use:** Natural-sounding voice-overs
-
-### 4. **Video Composition - FFmpeg (FREE)**
-```bash
-# Ubuntu/Debian
-sudo apt-get install ffmpeg
-
-# Mac
-brew install ffmpeg
-
-# Windows
-choco install ffmpeg
-```
-- Video editing & composition
-- Audio synchronization
-- Format conversion
-
-### 5. **Upload Automation - YouTube API (FREE)**
-- Unlimited uploads (requires OAuth2 setup)
-- Schedule publishing
-- Auto-optimize metadata
-
-## 🔧 Installation & Setup
+## Setup
 
 ### Prerequisites
+
 ```bash
 Python 3.10+
-FFmpeg
-Git
 ```
 
-### 1. Clone Repository
-```bash
-git clone https://github.com/BoopyCode/velocity-vault-free.git
-cd velocity-vault-free
-```
+### Install dependencies
 
-### 2. Create Virtual Environment
 ```bash
 python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-### 3. Install Dependencies
-```bash
 pip install -r requirements.txt
 ```
 
-### 4. Setup API Keys
+### Configure AI
+
 ```bash
-# Create .env file
 cp .env.example .env
 ```
 
-Edit `.env` with your credentials:
-```
-# DeepSeek (FREE - get from https://platform.deepseek.com)
-DEEPSEEK_API_KEY=sk_xxxxx
+Set an OpenAI-compatible API key and model in `.env`. If you use a model with
+vision support, the assistant can analyze the uploaded photo directly. Without
+an API key, it falls back to basic filename and note detection.
 
-# Replicate (FREE - get from https://replicate.com)
-REPLICATE_API_TOKEN=xxxxx
+## Generate a listing
 
-# YouTube OAuth (setup in Google Cloud Console)
-YOUTUBE_OAUTH_TOKEN=xxxxx
-YOUTUBE_CHANNEL_ID=UCp3eKZhxDGwruAdId9pxgcg
-```
-
-### 5. Run Pipeline
 ```bash
-python pipeline.py --videos 10 --daily-schedule
+python pipeline.py ./photos/iphone_13_128gb.jpg \
+  --notes "128 GB, kondícia dobrá, batéria 88 %, bez prasklín" \
+  --output-dir listings
 ```
 
-## 📝 Content Strategy
+The command writes a JSON draft such as:
 
-### Video Pillars (Rotate Daily)
-1. **Psychology/Mindset** (40%)
-   - Motivation hacks
-   - Mental health tips
-   - Behavioral psychology
-
-2. **Productivity/Habits** (40%)
-   - Time management
-   - Focus techniques
-   - Daily routines
-
-3. **Finance/Money** (20%)
-   - Money mindset
-   - Budgeting tips
-   - Wealth building
-
-### Example Scripts
-```yaml
-- Title: "The 2-Minute Rule"
-  Hook: "Most people wait for the perfect moment..."
-  Body: "The 2-minute rule: Start with just 2 minutes..."
-  CTA: "What's ONE thing you'll commit to?"
-  Duration: 45 seconds
+```json
+{
+  "title": "Apple Iphone 13",
+  "category": "Mobily",
+  "subcategory": "iPhone",
+  "brand": "Apple",
+  "model": "Iphone 13",
+  "condition": "good",
+  "suggested_price": {
+    "amount": 0,
+    "currency": "EUR",
+    "confidence": "low",
+    "reason": "..."
+  },
+  "description": "..."
+}
 ```
 
-## 📈 Growth Projections (6 Months)
+## Environment variables
 
-```
-Month 1: 50k subs | 2-3M views
-Month 2: 200k subs | 8-10M views  
-Month 3: 500k subs | 20M views
-Month 4: 1M subs | 35M views
-Month 5: 2M subs | 25M views
-Month 6: 3-4M subs | 15-20M views
-────────────────────────────────
-TOTAL: 100-120M views ✅
-```
+- `MARKETPLACE_AI_API_KEY` - API key for the AI provider
+- `MARKETPLACE_AI_BASE_URL` - OpenAI-compatible API base URL
+- `MARKETPLACE_AI_MODEL` - AI model name
+- `LISTING_LANGUAGE` - Listing language, defaults to `sk`
+- `LISTING_CURRENCY` - Listing currency, defaults to `EUR`
+- `OUTPUT_DIR` - Default output directory for generated listing JSON files
+- `LOG_LEVEL` - Python logging level
 
-## 🎯 Key Features
+## Notes
 
-- ✅ **100% Free** - No paid subscriptions
-- ✅ **Automated** - 3-5 videos daily
-- ✅ **Scalable** - Easy to add more content pillars
-- ✅ **Open Source** - Fully transparent code
-- ✅ **YouTube Optimized** - SEO + algorithm hacks
-- ✅ **CI/CD Ready** - GitHub Actions integration
-
-## 📚 Documentation
-
-- [Setup Guide](./docs/SETUP.md)
-- [API Configuration](./docs/API_SETUP.md)
-- [Content Creation](./docs/CONTENT.md)
-- [Troubleshooting](./docs/TROUBLESHOOTING.md)
-
-## 🤝 Contributing
-
-Fork the repo, make improvements, and submit PRs!
-
-## 📄 License
-
-MIT - Free to use and modify
-
----
-
-**Created:** March 2026  
-**YouTube Channel:** [@velocityvault_yt](https://www.youtube.com/channel/UCp3eKZhxDGwruAdId9pxgcg)
+AI output should be reviewed before publishing. Ask the seller to confirm
+condition, battery health, account lock status, warranty, accessories, and any
+visible defects before a listing goes live.
