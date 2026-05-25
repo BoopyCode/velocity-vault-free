@@ -41,6 +41,21 @@ class MobileMarketplaceAI:
     """Generate AI-assisted marketplace listings from mobile phone photos."""
 
     COMMON_STORAGE_SIZES = (32, 64, 128, 256, 512, 1024)
+    _STORAGE_GB_SIZES = "|".join(str(size) for size in COMMON_STORAGE_SIZES)
+    _STORAGE_TB_SIZES = "|".join(
+        str(size // 1024)
+        for size in COMMON_STORAGE_SIZES
+        if size >= 1024 and size % 1024 == 0
+    )
+    STORAGE_PATTERN = re.compile(
+        rf"\b({_STORAGE_GB_SIZES})\s?gb\b"
+        + (
+            rf"|\b({_STORAGE_TB_SIZES})\s?tb\b"
+            if _STORAGE_TB_SIZES
+            else ""
+        ),
+        re.I,
+    )
 
     def __init__(self) -> None:
         api_key = os.getenv("MARKETPLACE_AI_API_KEY")
@@ -282,19 +297,9 @@ Return this JSON shape:
             formatted = formatted.replace(old, new)
         return formatted
 
-    @staticmethod
-    def _detect_storage(text: str) -> str:
-        gb_sizes = "|".join(str(size) for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES)
-        tb_sizes = "|".join(
-            str(size // 1024)
-            for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES
-            if size >= 1024 and size % 1024 == 0
-        )
-        pattern = rf"\b({gb_sizes})\s?gb\b"
-        if tb_sizes:
-            pattern = rf"{pattern}|\b({tb_sizes})\s?tb\b"
-
-        match = re.search(pattern, text, re.I)
+    @classmethod
+    def _detect_storage(cls, text: str) -> str:
+        match = cls.STORAGE_PATTERN.search(text)
         return match.group(0).upper().replace(" ", "") if match else ""
 
 
