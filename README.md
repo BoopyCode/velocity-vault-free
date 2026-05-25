@@ -51,11 +51,11 @@ The command writes a JSON draft such as:
 
 ```json
 {
-  "title": "Apple Iphone 13",
+  "title": "Apple iPhone 13",
   "category": "Mobily",
   "subcategory": "iPhone",
   "brand": "Apple",
-  "model": "Iphone 13",
+  "model": "iPhone 13",
   "condition": "good",
   "suggested_price": {
     "amount": 0,

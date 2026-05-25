@@ -49,12 +49,12 @@ class MobileMarketplaceAI:
         self.language = os.getenv("LISTING_LANGUAGE", "sk")
         self.client: Optional[Any] = None
 
-        if api_key and OpenAI:
-            self.client = OpenAI(api_key=api_key, base_url=base_url)
-        elif api_key:
+        if not api_key:
+            logger.warning("No AI API key configured; using filename-based fallback.")
+        elif OpenAI is None:
             logger.warning("openai package is not installed; using fallback mode.")
         else:
-            logger.warning("No AI API key configured; using filename-based fallback.")
+            self.client = OpenAI(api_key=api_key, base_url=base_url)
 
     def create_listing(
         self,
@@ -248,16 +248,29 @@ Return this JSON shape:
     @staticmethod
     def _detect_model_hint(text: str) -> str:
         patterns = [
-            r"iphone\s?\d{1,2}\s?(?:pro|max|mini|plus)?",
-            r"galaxy\s?s\d{1,2}\s?(?:ultra|plus|fe)?",
-            r"pixel\s?\d{1,2}\s?(?:pro|a)?",
-            r"redmi\s?note\s?\d{1,2}",
+            r"iphone[\s_-]?\d{1,2}[\s_-]?(?:pro|max|mini|plus)?",
+            r"galaxy[\s_-]?s\d{1,2}[\s_-]?(?:ultra|plus|fe)?",
+            r"pixel[\s_-]?\d{1,2}[\s_-]?(?:pro|a)?",
+            r"redmi[\s_-]?note[\s_-]?\d{1,2}",
         ]
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                return match.group(0).title()
+                return MobileMarketplaceAI._format_model_name(match.group(0))
         return ""
+
+    @staticmethod
+    def _format_model_name(model: str) -> str:
+        formatted = model.replace("_", " ").replace("-", " ").title().strip()
+        replacements = {
+            "Iphone": "iPhone",
+            "Gb": "GB",
+            "Tb": "TB",
+            "Fe": "FE",
+        }
+        for old, new in replacements.items():
+            formatted = formatted.replace(old, new)
+        return formatted
 
     @staticmethod
     def _detect_storage(text: str) -> str:
