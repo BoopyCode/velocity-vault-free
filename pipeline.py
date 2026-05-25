@@ -56,7 +56,7 @@ class MobileMarketplaceAI:
     )
 
     def __init__(self) -> None:
-        api_key = os.getenv("MARKETPLACE_AI_API_KEY")
+        marketplace_ai_api_key = os.getenv("MARKETPLACE_AI_API_KEY")
         base_url = os.getenv("MARKETPLACE_AI_BASE_URL", "https://api.deepseek.com/v1")
 
         self.model = os.getenv("MARKETPLACE_AI_MODEL", "deepseek-chat")
@@ -64,7 +64,7 @@ class MobileMarketplaceAI:
         self.language = os.getenv("LISTING_LANGUAGE", "sk")
         self.client: Optional[Any] = None
 
-        if not api_key:
+        if not marketplace_ai_api_key:
             logger.warning(
                 "No AI API key configured; set MARKETPLACE_AI_API_KEY in .env "
                 "to enable photo analysis. Using filename-based fallback."
@@ -75,7 +75,7 @@ class MobileMarketplaceAI:
                 "requirements.txt' to enable AI mode. Using fallback mode."
             )
         else:
-            self.client = OpenAI(api_key=api_key, base_url=base_url)
+            self.client = OpenAI(api_key=marketplace_ai_api_key, base_url=base_url)
 
     def create_listing(
         self,
@@ -264,17 +264,17 @@ Return this JSON shape:
             "pixel": "Google",
         }
         for marker, brand in brands.items():
-            if marker in text:
+            if re.search(rf"(?<![A-Za-z0-9]){re.escape(marker)}(?![A-Za-z0-9])", text):
                 return brand
         return "Unknown"
 
     @staticmethod
     def _detect_model_hint(text: str) -> str:
         patterns = [
-            r"iphone[\s_-]?\d{1,2}[\s_-]?(?:pro|max|mini|plus)?",
-            r"galaxy[\s_-]?s\d{1,2}[\s_-]?(?:ultra|plus|fe)?",
-            r"pixel[\s_-]?\d{1,2}[\s_-]?(?:pro|a)?",
-            r"redmi[\s_-]?note[\s_-]?\d{1,2}",
+            r"(?<![A-Za-z0-9])iphone[\s_-]?\d{1,2}(?:[\s_-]?(?:pro|max|mini|plus))?(?![A-Za-z0-9])",
+            r"(?<![A-Za-z0-9])galaxy[\s_-]?s\d{1,2}(?:[\s_-]?(?:ultra|plus|fe))?(?![A-Za-z0-9])",
+            r"(?<![A-Za-z0-9])pixel[\s_-]?\d{1,2}(?:[\s_-]?(?:pro|a))?(?![A-Za-z0-9])",
+            r"(?<![A-Za-z0-9])redmi[\s_-]?note[\s_-]?\d{1,2}(?![A-Za-z0-9])",
         ]
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
@@ -307,7 +307,7 @@ Return this JSON shape:
             if lower_word in replacements:
                 normalized.append(replacements[lower_word])
             elif len(word) > 1 and word[0].isalpha() and word[1:].isdigit():
-                normalized.append(word.upper())
+                normalized.append(word[0].upper() + word[1:])
             else:
                 normalized.append(word.title())
         return " ".join(normalized)
@@ -319,7 +319,7 @@ Return this JSON shape:
             return ""
         if match.group("gb"):
             return f"{match.group('gb')}GB"
-        if match.group("tb"):
+        elif match.group("tb"):
             return f"{match.group('tb')}TB"
         return ""
 

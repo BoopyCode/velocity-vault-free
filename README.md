@@ -82,3 +82,6 @@ The command writes a JSON draft such as:
 AI output should be reviewed before publishing. Ask the seller to confirm
 condition, battery health, account lock status, warranty, accessories, and any
 visible defects before a listing goes live.
+
+Fallback listings need extra review because they use only simple pattern
+matching from filenames and seller notes when AI analysis is unavailable.
