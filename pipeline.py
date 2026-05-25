@@ -158,9 +158,9 @@ Return this JSON shape:
   "model": "detected model or Unknown",
   "condition": "new | like_new | good | used | damaged | unknown",
   "detected_attributes": {{
-    "storage": "if known",
-    "color": "if visible",
-    "battery_health": "if provided",
+    "storage": "128GB | Unknown",
+    "color": "Black | Unknown",
+    "battery_health": "88% | Unknown",
     "included_accessories": [],
     "visible_defects": []
   }},
@@ -319,7 +319,7 @@ Return this JSON shape:
             return ""
         if match.group("gb"):
             return f"{match.group('gb')}GB"
-        elif match.group("tb"):
+        if match.group("tb"):
             return f"{match.group('tb')}TB"
         return ""
 
