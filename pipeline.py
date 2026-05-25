@@ -40,6 +40,8 @@ logger = logging.getLogger(__name__)
 class MobileMarketplaceAI:
     """Generate AI-assisted marketplace listings from mobile phone photos."""
 
+    COMMON_STORAGE_SIZES = (32, 64, 128, 256, 512, 1024)
+
     def __init__(self) -> None:
         api_key = os.getenv("MARKETPLACE_AI_API_KEY") or os.getenv("DEEPSEEK_API_KEY")
         base_url = os.getenv("MARKETPLACE_AI_BASE_URL", "https://api.deepseek.com/v1")
@@ -50,9 +52,15 @@ class MobileMarketplaceAI:
         self.client: Optional[Any] = None
 
         if not api_key:
-            logger.warning("No AI API key configured; using filename-based fallback.")
+            logger.warning(
+                "No AI API key configured; set MARKETPLACE_AI_API_KEY in .env "
+                "to enable photo analysis. Using filename-based fallback."
+            )
         elif OpenAI is None:
-            logger.warning("openai package is not installed; using fallback mode.")
+            logger.warning(
+                "openai package is not installed; run 'pip install -r "
+                "requirements.txt' to enable AI mode. Using fallback mode."
+            )
         else:
             self.client = OpenAI(api_key=api_key, base_url=base_url)
 
@@ -63,8 +71,10 @@ class MobileMarketplaceAI:
         output_dir: Path = Path("listings"),
     ) -> Dict[str, Any]:
         """Create a marketplace listing JSON file for a phone photo."""
-        if not photo_path.exists() or not photo_path.is_file():
-            raise FileNotFoundError(f"Photo not found: {photo_path}")
+        if not photo_path.exists():
+            raise FileNotFoundError(f"Photo does not exist: {photo_path}")
+        if not photo_path.is_file():
+            raise ValueError(f"Photo path must be a file, not a directory: {photo_path}")
 
         listing = self._generate_with_ai(photo_path, notes) if self.client else None
         if not listing:
@@ -256,11 +266,11 @@ Return this JSON shape:
         for pattern in patterns:
             match = re.search(pattern, text, re.IGNORECASE)
             if match:
-                return MobileMarketplaceAI._format_model_name(match.group(0))
+                return MobileMarketplaceAI._normalize_model_name(match.group(0))
         return ""
 
     @staticmethod
-    def _format_model_name(model: str) -> str:
+    def _normalize_model_name(model: str) -> str:
         formatted = model.replace("_", " ").replace("-", " ").title().strip()
         replacements = {
             "Iphone": "iPhone",
@@ -274,7 +284,8 @@ Return this JSON shape:
 
     @staticmethod
     def _detect_storage(text: str) -> str:
-        match = re.search(r"\b(32|64|128|256|512)\s?gb\b|\b1\s?tb\b", text, re.I)
+        sizes = "|".join(str(size) for size in MobileMarketplaceAI.COMMON_STORAGE_SIZES)
+        match = re.search(rf"\b({sizes})\s?gb\b|\b1\s?tb\b", text, re.I)
         return match.group(0).upper().replace(" ", "") if match else ""
 
 
