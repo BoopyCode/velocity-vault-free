@@ -47,13 +47,11 @@ class MobileMarketplaceAI:
         for size in COMMON_STORAGE_SIZES
         if size >= 1024 and size % 1024 == 0
     )
+    _STORAGE_TB_PATTERN = (
+        rf"|\b(?P<tb>{_STORAGE_TB_SIZES})\s?tb\b" if _STORAGE_TB_SIZES else ""
+    )
     STORAGE_PATTERN = re.compile(
-        rf"\b({_STORAGE_GB_SIZES})\s?gb\b"
-        + (
-            rf"|\b({_STORAGE_TB_SIZES})\s?tb\b"
-            if _STORAGE_TB_SIZES
-            else ""
-        ),
+        rf"\b(?P<gb>{_STORAGE_GB_SIZES})\s?gb\b{_STORAGE_TB_PATTERN}",
         re.I,
     )
 
@@ -286,21 +284,44 @@ Return this JSON shape:
 
     @staticmethod
     def _normalize_model_name(model: str) -> str:
-        formatted = model.replace("_", " ").replace("-", " ").title().strip()
+        words = model.replace("_", " ").replace("-", " ").strip().split()
         replacements = {
-            "Iphone": "iPhone",
-            "Gb": "GB",
-            "Tb": "TB",
-            "Fe": "FE",
+            "iphone": "iPhone",
+            "oneplus": "OnePlus",
+            "galaxy": "Galaxy",
+            "pixel": "Pixel",
+            "redmi": "Redmi",
+            "note": "Note",
+            "pro": "Pro",
+            "max": "Max",
+            "mini": "Mini",
+            "plus": "Plus",
+            "ultra": "Ultra",
+            "fe": "FE",
+            "gb": "GB",
+            "tb": "TB",
         }
-        for old, new in replacements.items():
-            formatted = formatted.replace(old, new)
-        return formatted
+        normalized = []
+        for word in words:
+            lower_word = word.lower()
+            if lower_word in replacements:
+                normalized.append(replacements[lower_word])
+            elif len(word) > 1 and word[0].isalpha() and word[1:].isdigit():
+                normalized.append(word.upper())
+            else:
+                normalized.append(word.title())
+        return " ".join(normalized)
 
     @classmethod
     def _detect_storage(cls, text: str) -> str:
         match = cls.STORAGE_PATTERN.search(text)
-        return match.group(0).upper().replace(" ", "") if match else ""
+        if not match:
+            return ""
+        if match.group("gb"):
+            return f"{match.group('gb')}GB"
+        if match.group("tb"):
+            return f"{match.group('tb')}TB"
+        return ""
 
 
 def parse_args() -> argparse.Namespace:
