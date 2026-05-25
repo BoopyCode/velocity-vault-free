@@ -17,8 +17,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-from dotenv import load_dotenv
-from openai import OpenAI
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:
+    def load_dotenv() -> bool:
+        return False
+
+try:
+    from openai import OpenAI
+except ModuleNotFoundError:
+    OpenAI = None
 
 load_dotenv()
 
@@ -39,10 +47,12 @@ class MobileMarketplaceAI:
         self.model = os.getenv("MARKETPLACE_AI_MODEL", "deepseek-chat")
         self.currency = os.getenv("LISTING_CURRENCY", "EUR")
         self.language = os.getenv("LISTING_LANGUAGE", "sk")
-        self.client: Optional[OpenAI] = None
+        self.client: Optional[Any] = None
 
-        if api_key:
+        if api_key and OpenAI:
             self.client = OpenAI(api_key=api_key, base_url=base_url)
+        elif api_key:
+            logger.warning("openai package is not installed; using fallback mode.")
         else:
             logger.warning("No AI API key configured; using filename-based fallback.")
 
